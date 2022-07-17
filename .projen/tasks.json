@@ -130,6 +130,78 @@
         }
       ]
     },
+    "integ:awscliv2-layer:assert": {
+      "name": "integ:awscliv2-layer:assert",
+      "description": "assert the snapshot of integration test 'awscliv2-layer'",
+      "steps": [
+        {
+          "exec": "[ -d \"test/awscliv2-layer.integ.snapshot\" ] || (echo \"No snapshot available for integration test 'awscliv2-layer'. Run 'projen integ:awscliv2-layer:deploy' to capture.\" && exit 1)"
+        },
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/awscliv2-layer.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/.tmp/awscliv2-layer.integ/assert.cdk.out > /dev/null"
+        },
+        {
+          "exec": "diff -r -x asset.* -x cdk.out -x manifest.json -x tree.json test/awscliv2-layer.integ.snapshot/ test/.tmp/awscliv2-layer.integ/assert.cdk.out/"
+        }
+      ]
+    },
+    "integ:awscliv2-layer:deploy": {
+      "name": "integ:awscliv2-layer:deploy",
+      "description": "deploy integration test 'awscliv2-layer' and capture snapshot",
+      "steps": [
+        {
+          "exec": "rm -fr test/.tmp/awscliv2-layer.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "cdk deploy --app \"ts-node -P tsconfig.dev.json test/awscliv2-layer.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' --require-approval=never -o test/.tmp/awscliv2-layer.integ/deploy.cdk.out"
+        },
+        {
+          "exec": "rm -fr test/awscliv2-layer.integ.snapshot"
+        },
+        {
+          "exec": "mv test/.tmp/awscliv2-layer.integ/deploy.cdk.out test/awscliv2-layer.integ.snapshot"
+        },
+        {
+          "spawn": "integ:awscliv2-layer:destroy"
+        }
+      ]
+    },
+    "integ:awscliv2-layer:destroy": {
+      "name": "integ:awscliv2-layer:destroy",
+      "description": "destroy integration test 'awscliv2-layer'",
+      "steps": [
+        {
+          "exec": "cdk destroy --app test/awscliv2-layer.integ.snapshot '**' --no-version-reporting"
+        }
+      ]
+    },
+    "integ:awscliv2-layer:snapshot": {
+      "name": "integ:awscliv2-layer:snapshot",
+      "description": "update snapshot for integration test \"awscliv2-layer\"",
+      "steps": [
+        {
+          "exec": "cdk synth --app \"ts-node -P tsconfig.dev.json test/awscliv2-layer.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata -o test/awscliv2-layer.integ.snapshot > /dev/null"
+        }
+      ]
+    },
+    "integ:awscliv2-layer:watch": {
+      "name": "integ:awscliv2-layer:watch",
+      "description": "watch integration test 'awscliv2-layer' (without updating snapshots)",
+      "steps": [
+        {
+          "exec": "cdk watch --app \"ts-node -P tsconfig.dev.json test/awscliv2-layer.integ.ts\" --no-version-reporting --no-asset-metadata --no-path-metadata '**' -o test/.tmp/awscliv2-layer.integ/deploy.cdk.out"
+        }
+      ]
+    },
+    "integ:snapshot-all": {
+      "name": "integ:snapshot-all",
+      "description": "update snapshot for all integration tests",
+      "steps": [
+        {
+          "spawn": "integ:awscliv2-layer:snapshot"
+        }
+      ]
+    },
     "package": {
       "name": "package",
       "description": "Creates the distribution package",
@@ -207,6 +279,9 @@
         },
         {
           "spawn": "eslint"
+        },
+        {
+          "spawn": "integ:awscliv2-layer:assert"
         }
       ]
     },

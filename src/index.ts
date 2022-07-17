@@ -1,5 +1,1 @@
-export class Hello {
-  public sayHello() {
-    return 'hello, world!';
-  }
-}
+export * from './awscliv2-layer';

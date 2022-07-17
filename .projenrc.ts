@@ -7,6 +7,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
   name: 'cdk-lambda-layer-awscliv2',
   projenrcTs: true,
   prettier: true,
+  prettierOptions: {
+    settings: {
+      singleQuote: true,
+    },
+  },
   eslintOptions: { dirs: ['src'], prettier: true },
   repositoryUrl: 'https://github.com/WinterYukky/cdk-lambda-layer-awscliv2.git',
 
